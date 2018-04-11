@@ -1,0 +1,309 @@
+;try final
+;==================  
+include 'emu8086.inc'
+org 100h
+
+mov cx,0
+mov si,0        
+up:
+cmp cx,0
+jnz u
+mov si,0
+mov di,0
+u:  
+mov ax,03h
+int 10h
+mov dx,cx
+add dx,48
+
+printn 'Enter Floor: '
+mov ah,2
+int 21h
+
+mov ax,03h
+int 10h         
+cmp cx,0
+jz open
+
+;================
+v:mov ax,03h
+int 10h   
+mov di,si
+mov si,0
+mov bh,0
+top:
+mov bl,a[si] 
+sub bl,48 
+cmp bx,cx 
+jz open
+cmp si,di
+jnz incr
+jmp stop
+incr:
+inc si
+jmp top
+;================
+;------------------------------------
+open:mov si,di
+printn 'Door open <||>'
+cmp cx,9
+jnz f
+mov si,0
+;+++++++++++++++++++++++
+f:printn ''
+printn 'Persons exiting:'
+mov ah,1
+int 21h
+mov bl,al
+printn ''
+printn 'Persons entering:'
+mov ah,1
+int 21h
+pop dx
+add al,dl
+sub al,bl
+mov dl,al
+push dx
+cmp al,8
+jle ok
+printn ''
+printn 'overload'
+jmp f 
+ok:
+;+++++++++++++++++++++++
+printn 'Enter floor:'
+flr:
+mov ah,1
+int 21h 
+cmp al,13
+jz close
+mov a[si],al
+;sub a[si],48
+inc si
+jmp flr
+
+close:
+printn ''
+printn 'Door closed >||<'  
+;------------------------------------
+cmp cx,0
+jz j
+jmp c9
+ j:cmp si,0
+ jz z
+ jmp a1 
+ z:
+ mov ax,03h
+ int 10h   
+ printn 'chalted'
+ jmp key
+c9:cmp cx,9
+jnz a1
+cmp si,0
+jz stop
+jmp a1
+stop:
+cmp cx,9
+jnz a1
+mov si,0
+
+
+a1:inc cx
+cmp cx,10
+jz down
+
+mov ax,03h
+int 10h
+printn ' '
+printn ''  
+mov dx,cx
+add dx,48
+mov ah,2
+int 21h
+printn '    ^'
+printn '     |'
+
+key:  
+;mov bx,120
+delay:
+;dec bx
+mov ah,01h
+int 16h
+jnz wait1
+jz conti
+;mov dx,0
+;mov ah,2
+;int 10h 
+wait1:
+printn ''
+printn ''
+printn ''
+printn ''
+printn ''
+printn 'Call from floor:'
+mov ah,1
+int 21h
+mov a[si],al
+inc si
+ 
+conti:
+mov dx,0
+mov ah,2
+int 10h
+
+;cmp bx,0
+;jnz delay
+cmp cx,0
+jz q2
+jmp w3
+q2:cmp si,0 
+jz key  
+w3:
+jmp v
+
+;*******************************
+
+down:  
+dec cx
+dn:
+cmp cx,9
+jz q
+jmp ck
+q:cmp si,0
+jnz ck
+mov ax,03h 
+int 10h 
+printn 'halted'
+jmp ks 
+;jmp end
+
+ck:
+mov ax,03h 
+int 10h
+dec cx
+
+printn ' '
+printn ''  
+printn '    |'
+mov dx,cx
+add dx,48
+mov ah,2
+int 21h
+printn '   v'
+
+ks:
+;mov bx,120
+delay2:
+;dec bx
+mov ah,01h
+int 16h
+jnz wait2
+jz cont
+;mov dx,0
+;mov ah,2
+;int 10h 
+wait2:
+
+printn ''
+printn ''
+printn ''
+printn ''
+printn ''
+printn 'Call from floor:'
+mov ah,1
+int 21h
+mov a[si],al
+inc si
+ 
+cont:
+mov dx,0
+mov ah,2
+int 10h  
+;cmp bx,0
+;jnz delay2
+cmp cx,9
+jz q1
+jmp w2
+q1:cmp si,0 
+jnz ck
+jmp ks 
+w2: 
+cmp cx,0
+jz up
+mov ax,03h
+int 10h
+;jmp ck 
+printn 'Floor:'
+mov dx,cx
+add dx,48
+mov ah,2
+int 21h 
+
+;;cmp cx,0
+;;jz up
+;---------------------------
+mov di,si
+mov si,0
+mov bh,0
+top1:
+mov bl,a[si] 
+sub bl,48 
+cmp bx,cx 
+jz open1
+cmp si,di
+jnz incr1
+jmp stop1
+incr1:
+inc si
+jmp top1
+;---------------------------
+
+open1:mov si,di
+mov ax,03h
+int 10h   
+printn 'Door open <||>'
+;+++++++++++++++++++++++
+f1:printn ''
+printn 'Persons out:'
+mov ah,1
+int 21h
+mov bl,al
+printn ''
+printn 'Persons in:'
+mov ah,1
+int 21h
+pop dx
+add al,dl
+sub al,bl
+mov dl,al
+push dx
+cmp al,8
+jle okk
+printn ''
+printn 'overload'
+jmp f1 
+okk:
+;++++++++++++++++++++++++
+printn 'Enter floor:'
+flr1:
+mov ah,1
+int 21h 
+cmp al,13
+jz close1
+mov a[si],al
+;sub a[si],48
+inc si
+jmp flr1
+
+close1:
+printn ''
+printn 'Door closed >||<'
+;---------------------------
+stop1:
+jmp ck
+
+
+end:
+hlt
+
+a db dup(0)
